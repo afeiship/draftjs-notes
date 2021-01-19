@@ -1,0 +1,14 @@
+{
+  "name": "@jswork/draftjs-notes",
+  "version": "1.0.0",
+  "description": "Notes for draftjs.",
+  "homepage": "https://github.com/afeiship/draftjs-notes",
+  "author": {
+    "name": "afeiship",
+    "email": "1290657123@qq.com"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  }
+}
