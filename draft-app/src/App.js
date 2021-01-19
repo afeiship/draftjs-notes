@@ -2,7 +2,8 @@ import logo from './logo.svg';
 import './App.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Editor, EditorState } from 'draft-js';
+import { Editor, EditorState, RichUtils } from 'draft-js';
+import 'draft-js/dist/Draft.css';
 
 function myBlockStyleFn(contentBlock) {
   const type = contentBlock.getType();
@@ -16,14 +17,36 @@ class MyEditor extends React.Component {
     super(props);
     this.state = { editorState: EditorState.createEmpty() };
     this.onChange = (editorState) => this.setState({ editorState });
+    this.handleKeyCommand = this.handleKeyCommand.bind(this);
   }
+
+  handleKeyCommand(command, editorState) {
+    const newState = RichUtils.handleKeyCommand(editorState, command);
+
+    console.log(command);
+    if (newState) {
+      this.onChange(newState);
+      return 'handled';
+    }
+
+    return 'not-handled';
+  }
+
+  _onBoldClick() {
+    this.onChange(RichUtils.toggleInlineStyle(this.state.editorState, 'BOLD'));
+  }
+
   render() {
     return (
-      <Editor
-        blockStyleFn={myBlockStyleFn}
-        editorState={this.state.editorState}
-        onChange={this.onChange}
-      />
+      <div>
+        <button onClick={this._onBoldClick.bind(this)}>Bold</button>
+        <Editor
+          blockStyleFn={myBlockStyleFn}
+          editorState={this.state.editorState}
+          handleKeyCommand={this.handleKeyCommand}
+          onChange={this.onChange}
+        />
+      </div>
     );
   }
 }
