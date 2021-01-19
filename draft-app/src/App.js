@@ -4,6 +4,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Editor, EditorState } from 'draft-js';
 
+function myBlockStyleFn(contentBlock) {
+  const type = contentBlock.getType();
+  if (type === 'blockquote') {
+    return 'superFancyBlockquote';
+  }
+}
+
 class MyEditor extends React.Component {
   constructor(props) {
     super(props);
@@ -11,7 +18,13 @@ class MyEditor extends React.Component {
     this.onChange = (editorState) => this.setState({ editorState });
   }
   render() {
-    return <Editor editorState={this.state.editorState} onChange={this.onChange} />;
+    return (
+      <Editor
+        blockStyleFn={myBlockStyleFn}
+        editorState={this.state.editorState}
+        onChange={this.onChange}
+      />
+    );
   }
 }
 

@@ -2,3 +2,11 @@
   border:1px solid #ccc;
   padding: 10px;
 }
+
+
+.superFancyBlockquote {
+  color: #999;
+  font-family: 'Hoefler Text', Georgia, serif;
+  font-style: italic;
+  text-align: center;
+}
