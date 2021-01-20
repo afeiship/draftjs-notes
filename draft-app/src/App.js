@@ -2,8 +2,9 @@ import React from 'react';
 import { EditorState, Editor, RichUtils, AtomicBlockUtils } from 'draft-js';
 // import Editor from 'draft-js-plugins-editor';
 import { mediaBlockRenderer } from './entities/mediaBlockRenderer';
-
+import 'draft-js/dist/Draft.css';
 // https://medium.com/@siobhanpmahoney/building-a-rich-text-editor-with-react-and-draft-js-part-2-4-persisting-data-to-server-cd68e81c820
+// https://stackoverflow.com/questions/62249348/i-am-trying-to-use-draft-js-where-i-need-to-add-inline-image-and-text
 // import '../App.css';
 
 class PageContainer extends React.Component {
@@ -120,6 +121,7 @@ class PageContainer extends React.Component {
         </div>
         <div className="editors">
           <Editor
+            placeholder="type text..."
             blockRendererFn={mediaBlockRenderer}
             editorState={this.state.editorState}
             handleKeyCommand={this.handleKeyCommand}
