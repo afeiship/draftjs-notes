@@ -1,12 +1,31 @@
 import React from 'react';
-import { EditorState, Editor, RichUtils, AtomicBlockUtils } from 'draft-js';
+import {
+  EditorState,
+  Editor,
+  RichUtils,
+  DefaultDraftBlockRenderMap,
+  AtomicBlockUtils
+} from 'draft-js';
 // import Editor from 'draft-js-plugins-editor';
 import { mediaBlockRenderer } from './entities/mediaBlockRenderer';
+import Immutable from 'immutable';
 import 'draft-js/dist/Draft.css';
+import './App.css';
 // https://medium.com/@siobhanpmahoney/building-a-rich-text-editor-with-react-and-draft-js-part-2-4-persisting-data-to-server-cd68e81c820
 // https://stackoverflow.com/questions/62249348/i-am-trying-to-use-draft-js-where-i-need-to-add-inline-image-and-text
 // import '../App.css';
 
+class SpanWrap extends React.Component {
+  render() {
+    return <span {...this.props} />;
+  }
+}
+
+const blockRenderMap = Immutable.Map({
+  'atomic': {
+    element: 'span',
+  }
+});
 
 function myBlockStyleFn(contentBlock) {
   const type = contentBlock.getType();
@@ -19,10 +38,14 @@ function myBlockStyleFn(contentBlock) {
     return 'block-unstyled';
   }
 
-  if(type=== 'atomic') {
-    return 'atomic';
+  if (type === 'atomic') {
+    return 'f-atomic';
   }
 }
+
+const extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(blockRenderMap);
+
+console.log(extendedBlockRenderMap, DefaultDraftBlockRenderMap);
 
 class PageContainer extends React.Component {
   constructor(props) {
@@ -140,6 +163,7 @@ class PageContainer extends React.Component {
           <Editor
             placeholder="type text..."
             blockRendererFn={mediaBlockRenderer}
+            blockRenderMap={extendedBlockRenderMap}
             editorState={this.state.editorState}
             blockStyleFn={myBlockStyleFn}
             handleKeyCommand={this.handleKeyCommand}

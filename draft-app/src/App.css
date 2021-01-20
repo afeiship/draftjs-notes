@@ -10,3 +10,11 @@
   font-style: italic;
   text-align: center;
 }
+
+.std-image{
+  border:1px solid #ccc;padding:5px;
+}
+
+.std-image:hover{
+  border-color: lightblue;
+}

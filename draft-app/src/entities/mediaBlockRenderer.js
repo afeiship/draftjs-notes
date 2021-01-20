@@ -11,7 +11,7 @@ class Latex extends React.Component {
   }
 
   render() {
-    return <span ref={(root) => (this.root = root)}></span>;
+    return <span className="std-latex" ref={(root) => (this.root = root)}></span>;
   }
 }
 
@@ -28,7 +28,7 @@ export const mediaBlockRenderer = (block) => {
 
 const Image = (props) => {
   if (!!props.src) {
-    return <img src={props.src} />;
+    return <img className="std-image" src={props.src} />;
   }
   return null;
 };
