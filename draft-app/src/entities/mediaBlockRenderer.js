@@ -1,5 +1,19 @@
 import React from 'react';
 import { EditorState, RichUtils, AtomicBlockUtils } from 'draft-js';
+import katex from 'katex';
+
+class Latex extends React.Component {
+  componentDidMount() {
+    const { value } = this.props;
+    katex.render(value, this.root, {
+      throwOnError: false
+    });
+  }
+
+  render() {
+    return <span ref={(root) => (this.root = root)}></span>;
+  }
+}
 
 export const mediaBlockRenderer = (block) => {
   if (block.getType() === 'atomic') {
@@ -21,13 +35,17 @@ const Image = (props) => {
 
 const Media = (props) => {
   const entity = props.contentState.getEntity(props.block.getEntityAt(0));
-  const { src } = entity.getData();
+  const { src, value } = entity.getData();
   const type = entity.getType();
 
   let media;
 
   if (type === 'image') {
     media = <Image src={src} />;
+  }
+
+  if (type === 'latex') {
+    media = <Latex value={value} />;
   }
 
   return media;

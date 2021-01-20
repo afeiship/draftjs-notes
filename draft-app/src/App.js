@@ -2,6 +2,8 @@ import React from 'react';
 import { EditorState, Editor, RichUtils, AtomicBlockUtils } from 'draft-js';
 // import Editor from 'draft-js-plugins-editor';
 import { mediaBlockRenderer } from './entities/mediaBlockRenderer';
+
+// https://medium.com/@siobhanpmahoney/building-a-rich-text-editor-with-react-and-draft-js-part-2-4-persisting-data-to-server-cd68e81c820
 // import '../App.css';
 
 class PageContainer extends React.Component {
@@ -30,6 +32,30 @@ class PageContainer extends React.Component {
   onURLChange = (e) => this.setState({ urlValue: e.target.value });
 
   focus = () => this.refs.editor.focus();
+
+  onAddLatex = (e) => {
+    e.preventDefault();
+    const editorState = this.state.editorState;
+    const urlValue = window.prompt('Paste latex value');
+    const contentState = editorState.getCurrentContent();
+    const contentStateWithEntity = contentState.createEntity('latex', 'IMMUTABLE', {
+      value: urlValue
+    });
+    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+    const newEditorState = EditorState.set(
+      editorState,
+      { currentContent: contentStateWithEntity },
+      'create-entity'
+    );
+    this.setState(
+      {
+        editorState: AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' ')
+      },
+      () => {
+        setTimeout(() => this.focus(), 0);
+      }
+    );
+  };
 
   onAddImage = (e) => {
     e.preventDefault();
@@ -78,6 +104,7 @@ class PageContainer extends React.Component {
           <button onClick={this.onItalicClick}>
             <em>I</em>
           </button>
+          <button onClick={this.onAddLatex}>latex</button>
           <button className="inline styleButton" onClick={this.onAddImage}>
             <i
               className="material-icons"
