@@ -3,12 +3,16 @@ import {
   EditorState,
   Editor,
   RichUtils,
+  Modifier,
+  CompositeDecorator,
   DefaultDraftBlockRenderMap,
   AtomicBlockUtils
 } from 'draft-js';
 // import Editor from 'draft-js-plugins-editor';
 import { mediaBlockRenderer } from './entities/mediaBlockRenderer';
 import Immutable from 'immutable';
+import { ENTITY_TYPE } from 'draft-js-utils';
+import ImageDecorator from './entities/image-decorator';
 import 'draft-js/dist/Draft.css';
 import './App.css';
 // https://medium.com/@siobhanpmahoney/building-a-rich-text-editor-with-react-and-draft-js-part-2-4-persisting-data-to-server-cd68e81c820
@@ -22,10 +26,12 @@ class SpanWrap extends React.Component {
 }
 
 const blockRenderMap = Immutable.Map({
-  'atomic': {
-    element: 'span',
+  atomic: {
+    element: 'span'
   }
 });
+
+const decorator = new CompositeDecorator([ImageDecorator]);
 
 function myBlockStyleFn(contentBlock) {
   const type = contentBlock.getType();
@@ -51,7 +57,7 @@ class PageContainer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      editorState: EditorState.createEmpty()
+      editorState: EditorState.createEmpty(decorator)
     };
   }
 
@@ -88,9 +94,22 @@ class PageContainer extends React.Component {
       { currentContent: contentStateWithEntity },
       'create-entity'
     );
+
+    // text
+    const target1 = Modifier.insertText(
+      contentStateWithEntity,
+      editorState.getSelection(),
+      ' ',
+      null,
+      entityKey
+    );
+
+    //  atomic block
+    const target2 = AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' ');
+
     this.setState(
       {
-        editorState: AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' ')
+        editorState: target2
       },
       () => {
         setTimeout(() => this.focus(), 0);
@@ -122,6 +141,27 @@ class PageContainer extends React.Component {
     );
   };
 
+  onAddImage2 = () => {
+    // https://github.com/sstur/react-rte/blob/master/src/lib/EditorToolbar.js
+    const editorState = this.state.editorState;
+    let contentState = editorState.getCurrentContent();
+    let selection = editorState.getSelection();
+    const src = 'https://himg.bdimg.com/sys/portrait/item/be10475f686d6c73db00.jpg';
+    contentState = contentState.createEntity(ENTITY_TYPE.IMAGE, 'IMMUTABLE', { src });
+    let entityKey = contentState.getLastCreatedEntityKey();
+    let newContentState = Modifier.insertText(contentState, selection, ' ', null, entityKey);
+    const target = EditorState.push(editorState, newContentState);
+    console.log(target);
+    this.setState(
+      {
+        editorState: target
+      },
+      () => {
+        setTimeout(() => this.focus(), 0);
+      }
+    );
+  };
+
   onUnderlineClick = () => {
     this.onChange(RichUtils.toggleInlineStyle(this.state.editorState, 'UNDERLINE'));
   };
@@ -146,7 +186,7 @@ class PageContainer extends React.Component {
             <em>I</em>
           </button>
           <button onClick={this.onAddLatex}>latex</button>
-          <button className="inline styleButton" onClick={this.onAddImage}>
+          <button className="inline styleButton" onClick={this.onAddImage2}>
             <i
               className="material-icons"
               style={{
