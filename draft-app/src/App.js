@@ -7,6 +7,23 @@ import 'draft-js/dist/Draft.css';
 // https://stackoverflow.com/questions/62249348/i-am-trying-to-use-draft-js-where-i-need-to-add-inline-image-and-text
 // import '../App.css';
 
+
+function myBlockStyleFn(contentBlock) {
+  const type = contentBlock.getType();
+  console.log('type:', type);
+  if (type === 'blockquote') {
+    return 'superFancyBlockquote';
+  }
+
+  if (type === 'unstyled') {
+    return 'block-unstyled';
+  }
+
+  if(type=== 'atomic') {
+    return 'atomic';
+  }
+}
+
 class PageContainer extends React.Component {
   constructor(props) {
     super(props);
@@ -124,6 +141,7 @@ class PageContainer extends React.Component {
             placeholder="type text..."
             blockRendererFn={mediaBlockRenderer}
             editorState={this.state.editorState}
+            blockStyleFn={myBlockStyleFn}
             handleKeyCommand={this.handleKeyCommand}
             onChange={this.onChange}
             plugins={this.plugins}
