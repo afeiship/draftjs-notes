@@ -6,9 +6,11 @@ class ImageSpan extends React.Component {
     console.log(this.props);
     const entity = this.props.contentState.getEntity(this.props.entityKey);
     const { src } = entity.getData();
+
     return (
       <span>
         <img src={src} />
+        {this.props.children}
       </span>
     );
   }
