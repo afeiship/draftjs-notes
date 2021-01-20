@@ -3,6 +3,7 @@ import './App.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Editor, EditorState, RichUtils } from 'draft-js';
+import MediaComponent from './components/media-component';
 import 'draft-js/dist/Draft.css';
 
 function myBlockStyleFn(contentBlock) {
@@ -32,6 +33,20 @@ class MyEditor extends React.Component {
     return 'not-handled';
   }
 
+  blockRendererFn = (contentBlock) => {
+    const type = contentBlock.getType();
+    console.log(type);
+    if (type === 'atomic') {
+      return {
+        component: MediaComponent,
+        editable: false,
+        props: {
+          foo: 'bar'
+        }
+      };
+    }
+  };
+
   _onBoldClick() {
     this.onChange(RichUtils.toggleInlineStyle(this.state.editorState, 'BOLD'));
   }
@@ -44,6 +59,7 @@ class MyEditor extends React.Component {
           blockStyleFn={myBlockStyleFn}
           editorState={this.state.editorState}
           handleKeyCommand={this.handleKeyCommand}
+          blockRendererFn={this.blockRendererFn}
           onChange={this.onChange}
         />
       </div>
