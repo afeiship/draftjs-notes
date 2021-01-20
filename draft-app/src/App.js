@@ -1,70 +1,109 @@
-import logo from './logo.svg';
-import './App.css';
 import React from 'react';
-import ReactDOM from 'react-dom';
-import { Editor, EditorState, RichUtils } from 'draft-js';
-import MediaComponent from './components/media-component';
-import 'draft-js/dist/Draft.css';
+import { EditorState, Editor, RichUtils, AtomicBlockUtils } from 'draft-js';
+// import Editor from 'draft-js-plugins-editor';
+import { mediaBlockRenderer } from './entities/mediaBlockRenderer';
+// import '../App.css';
 
-function myBlockStyleFn(contentBlock) {
-  const type = contentBlock.getType();
-  if (type === 'blockquote') {
-    return 'superFancyBlockquote';
-  }
-}
-
-class MyEditor extends React.Component {
+class PageContainer extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { editorState: EditorState.createEmpty() };
-    this.onChange = (editorState) => this.setState({ editorState });
-    this.handleKeyCommand = this.handleKeyCommand.bind(this);
+    this.state = {
+      editorState: EditorState.createEmpty()
+    };
   }
 
-  handleKeyCommand(command, editorState) {
-    const newState = RichUtils.handleKeyCommand(editorState, command);
+  onChange = (editorState) => {
+    this.setState({
+      editorState
+    });
+  };
 
-    console.log(command);
+  handleKeyCommand = (command) => {
+    const newState = RichUtils.handleKeyCommand(this.state.editorState, command);
     if (newState) {
       this.onChange(newState);
       return 'handled';
     }
-
     return 'not-handled';
-  }
-
-  blockRendererFn = (contentBlock) => {
-    const type = contentBlock.getType();
-    console.log(type);
-    if (type === 'atomic') {
-      return {
-        component: MediaComponent,
-        editable: false,
-        props: {
-          foo: 'bar'
-        }
-      };
-    }
   };
 
-  _onBoldClick() {
+  onURLChange = (e) => this.setState({ urlValue: e.target.value });
+
+  focus = () => this.refs.editor.focus();
+
+  onAddImage = (e) => {
+    e.preventDefault();
+    const editorState = this.state.editorState;
+    const urlValue = window.prompt('Paste Image Link');
+    const contentState = editorState.getCurrentContent();
+    const contentStateWithEntity = contentState.createEntity('image', 'IMMUTABLE', {
+      src: urlValue
+    });
+    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+    const newEditorState = EditorState.set(
+      editorState,
+      { currentContent: contentStateWithEntity },
+      'create-entity'
+    );
+    this.setState(
+      {
+        editorState: AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, ' ')
+      },
+      () => {
+        setTimeout(() => this.focus(), 0);
+      }
+    );
+  };
+
+  onUnderlineClick = () => {
+    this.onChange(RichUtils.toggleInlineStyle(this.state.editorState, 'UNDERLINE'));
+  };
+
+  onBoldClick = () => {
     this.onChange(RichUtils.toggleInlineStyle(this.state.editorState, 'BOLD'));
-  }
+  };
+
+  onItalicClick = () => {
+    this.onChange(RichUtils.toggleInlineStyle(this.state.editorState, 'ITALIC'));
+  };
 
   render() {
     return (
-      <div>
-        <button onClick={this._onBoldClick.bind(this)}>Bold</button>
-        <Editor
-          blockStyleFn={myBlockStyleFn}
-          editorState={this.state.editorState}
-          handleKeyCommand={this.handleKeyCommand}
-          blockRendererFn={this.blockRendererFn}
-          onChange={this.onChange}
-        />
+      <div className="editorContainer">
+        <div className="menuButtons">
+          <button onClick={this.onUnderlineClick}>U</button>
+          <button onClick={this.onBoldClick}>
+            <b>B</b>
+          </button>
+          <button onClick={this.onItalicClick}>
+            <em>I</em>
+          </button>
+          <button className="inline styleButton" onClick={this.onAddImage}>
+            <i
+              className="material-icons"
+              style={{
+                fontSize: '16px',
+                textAlign: 'center',
+                padding: '0px',
+                margin: '0px'
+              }}>
+              image
+            </i>
+          </button>
+        </div>
+        <div className="editors">
+          <Editor
+            blockRendererFn={mediaBlockRenderer}
+            editorState={this.state.editorState}
+            handleKeyCommand={this.handleKeyCommand}
+            onChange={this.onChange}
+            plugins={this.plugins}
+            ref="editor"
+          />
+        </div>
       </div>
     );
   }
 }
 
-export default MyEditor;
+export default PageContainer;
